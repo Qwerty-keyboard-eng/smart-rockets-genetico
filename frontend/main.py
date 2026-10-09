@@ -11,6 +11,7 @@ sys.path.append(str(PROYECTO_DIR / "algoritmo"))
 
 # 2. Importamos la Población desde el paquete algoritmo
 from algoritmo.poblacion import Poblacion
+
 # ----------------------------------------------------------------------
 # CONFIGURACIÓN DEL ENTORNO
 # ----------------------------------------------------------------------
@@ -37,8 +38,8 @@ MAX_DISTANCIA = math.hypot(WIDTH, HEIGHT)
 # Obstáculos en pantalla (Rectángulos de colisión)
 OBSTACLES = [
     pygame.Rect(WIDTH // 4 + 50, HEIGHT // 2 - 10, WIDTH // 2 - 100, 20),      # Barrera central
-    pygame.Rect(WIDTH // 6, HEIGHT // 4, 120, 15),                  # Lateral izquierdo
-    pygame.Rect(WIDTH - WIDTH // 6 - 120, HEIGHT // 4, 120, 15)     # Lateral derecho
+    pygame.Rect(WIDTH // 6, HEIGHT // 4, 120, 15),                              # Lateral izquierdo
+    pygame.Rect(WIDTH - WIDTH // 6 - 120, HEIGHT // 4, 120, 15)                 # Lateral derecho
 ]
 
 # Inicializamos la población real con el código de tu compañero
@@ -50,11 +51,14 @@ fps_target = 60
 paused = False
 running = True
 
-# --- NUEVO: Criterio de corte por convergencia (Paciencia) ---
-PACIENCIA = 15                  # Máximo de generaciones sin superar el récord
+# --- Criterio de corte por convergencia (Paciencia) ---
+PACIENCIA = 15                  # Máximo de generaciones sin superar el récord de fitness
 generaciones_sin_mejora = 0
 ultimo_record = 0.0
 convergencia_alcanzada = False
+
+# Récord histórico de cohetes que llegaron a la meta
+record_cohetes = 0
 
 # ----------------------------------------------------------------------
 # FUNCIÓN DE RENDERIZADO DEL COHETE
@@ -103,12 +107,12 @@ while running:
                 generaciones_sin_mejora = 0
                 ultimo_record = 0.0
                 convergencia_alcanzada = False
+                record_cohetes = 0
 
     # 2. Física y Ciclo Genético (si no está pausado)
     if not paused:
         todos_parados = True
         for c in poblacion.cohetes:
-            # Llamamos al método físico de tu compañero
             c.actualizar(frame_count, TARGET_POS, TARGET_RADIUS, OBSTACLES)
             if not c.chocado and not c.completado:
                 todos_parados = False
@@ -157,10 +161,15 @@ while running:
     completados = sum(1 for c in poblacion.cohetes if c.completado)
     chocados = sum(1 for c in poblacion.cohetes if c.chocado)
 
+    # Actualiza el récord histórico de cohetes que llegaron a la meta
+    if completados > record_cohetes:
+        record_cohetes = completados
+
     ui_lines = [
         f"Generación: {poblacion.generacion}",
         f"Frame: {frame_count}/{LIFESPAN}",
         f"Llegaron a meta: {completados}/{POP_SIZE}",
+        f"Récord: {record_cohetes}/{POP_SIZE}",
         f"Estrellados: {chocados}/{POP_SIZE}",
         f"Mejor Fitness: {poblacion.mejor_fitness_historico:.4f}",
         f"Sin mejora: {generaciones_sin_mejora}/{PACIENCIA}",
