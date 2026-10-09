@@ -12,6 +12,6 @@ def calcular_fitness_cohete(cohete, meta_pos, max_distancia):
         bonus_tiempo = (cohete.lifespan - cohete.tiempo_llegada) / cohete.lifespan
         fitness += 3.0 + bonus_tiempo
     elif cohete.chocado:
-        fitness *= 0.5
+        fitness *= 0.1
 
     return fitness

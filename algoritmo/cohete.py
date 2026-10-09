@@ -12,12 +12,14 @@ class Cohete:
         self.posicion = pygame.math.Vector2(posicion_inicial)
         self.velocidad = pygame.math.Vector2(0, 0)
         self.aceleracion = pygame.math.Vector2(0, 0)
+    
         
         self.chocado = False
         self.completado = False
         self.tiempo_llegada = 0
         self.fitness = 0.0
         self.distancia_minima = float('inf')
+        self.max_speed = 5.0  # <-- AGREGAR ESTA LÍNEA
 
     def aplicar_fuerza(self, fuerza):
         if not self.chocado and not self.completado:
@@ -30,6 +32,11 @@ class Cohete:
         # 1. Movimiento físico
         self.aplicar_fuerza(self.dna.genes[frame])
         self.velocidad += self.aceleracion
+
+        # Limitar la velocidad máxima para que puedan doblar
+        if self.velocidad.length() > self.max_speed:
+            self.velocidad.scale_to_length(self.max_speed)
+
         self.posicion += self.velocidad
         self.aceleracion *= 0
 
